@@ -1,20 +1,18 @@
-## PostGIS安装指导手册
-              
-### 标签            
-PostGIS , OpenStreetMap , osm2pgsql    
-              
-----            
-              
-## 背景      
-PostGIS 是 PostgreSQL 关系数据库的空间操作扩展。它为 PostgreSQL 提供了存储、查询和修改空间关系的能力。
-OpenStreetMap是一个网上地图协作计划，其以类似于维基百科的运作模式，目标是创造一个内容自由且能让所有人编辑的世界地图。
-      
-## 环境    
-1\. CentOS 7 x64    
-2\. PostgreSQL 9.6    
-3\. PostGIS 2.3.3    
-4\. 样本数据来自OpenStreetMap公开的cn.pbf中国的地理位置信息数据。      
-    
+## 脉脉备份系统安装指导手册
+
+### 标签
+Git , Nginx , OpenSMTP
+
+----
+
+## 前言
+毛主席教导我们：备战备荒、为人民！
+
+## 环境
+1\. Rocky Linux release 8.4  
+2\. Git 2.32.0  
+
+
 ## 部署PostgreSQL 9.6    
 https://www.postgresql.org/    
     
