@@ -1,0 +1,36 @@
+#!/usr/bin/bash
+
+TIMEZONE=+0800
+EXPIRED=950400
+TIM1E=$(date +%s)
+TIM2E=$(date -d@${TIM1E} +%Y-%m-%dT%H:%M:%S)
+#MIRROR=https://git-codecommit.ap-northeast-1.amazonaws.com/v1/repos/your_backu1p/
+MIRROR=""
+
+SMTP_USER=tes2t@tes1t.cn
+MAIL_SUBJECT=tes1t_tes2t_db_backup_${TIM2E}
+MAIL_SUBSCRIBERS=your_name@your_mail.com
+
+list_expired() { [[ 6 -eq $# ]] && [[ ${EXPIRED} -lt $((${TIM1E}-$(/usr/bin/date -d ${1}-${2}-${3}T${4}:${5}:${6}${TIMEZONE} +%s))) ]] && echo ${1}${2}${3}T${4}${5}${6}
+}
+
+clean() {
+LISTS=$(/usr/bin/git branch -v --no-abbrev --no-color | /usr/bin/sed -ne s/^\ \ \\\([0-9]\\\{4\\\}\\\)\\\([0-9]\\\{2\\\}\\\)\\\([0-9]\\\{2\\\}\\\)T\\\([0-9]\\\{2\\\}\\\)\\\([0-9]\\\{2\\\}\\\)\\\([0-9]\\\{2\\\}\\\)\ [0-9a-f]\\\{40\\\}\ [0-9]\\\{1,\\\}\ .*/\\1\ \\2\ \\3\ \\4\ \\5\ \\6/p | while read TAG ; do list_expired ${TAG} ; done)
+[[ ! -z "${LISTS}" ]] && /usr/bin/git branch -qD ${LISTS}
+}
+
+push() {
+clean
+[[ ! -z "${MIRROR}" ]] && /usr/bin/git push -qf --mirror ${MIRROR} 
+}
+
+sendmail() {
+push
+(echo -e ${TIM2E}\\n && /usr/bin/git branch -v | /usr/bin/grep -e ^\ \ 20[0-9]\\{6\\}T[0-9]\\{6\\}\  | /usr/bin/sort -nr && /usr/bin/du -sh && /usr/bin/df -h .) | /usr/bin/mail --norc --no-config --append='Content-Type: text/plain;charset=UTF-8' --append='From: database_backup <'${SMTP_USER}'>' --subject="${MAIL_SUBJECT}" ${MAIL_SUBSCRIBERS}
+/usr/bin/git prune --expire=${EXPIRED}s
+}
+
+sendmail >/dev/null 2>&1 &
+
+echo -n
+

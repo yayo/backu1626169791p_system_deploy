@@ -1,0 +1,15 @@
+
+MYSQLDUMP=/usr/local/mysql/bin/mysqldump
+OPENSSL=/usr/bin/openssl
+
+TIMEZONE=+0800
+TIM2E=$(date +%Y%m%dT%H%M%S)
+SPLIT=104857600
+DIR=$(mktemp -d)
+REMOTE=https://tes3t-hztcm.test-backu2p.tes1t.cn:443/test/
+
+MYSQL_USER=root
+MYSQL_PASSWD=YOUR_PASS_WOR1D
+MYSQL_DB=test
+PREFIX=""
+PASSWORD=YOUR_PASS_WOR2D

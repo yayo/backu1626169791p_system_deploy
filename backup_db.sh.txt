@@ -1,0 +1,42 @@
+#!/usr/bin/bash
+
+if [ 1 -ne $# ]
+then
+echo You MUST specify config file
+exit
+else
+. ${1}
+if [ 0 -ne $? ]
+then
+echo NOT_FOUND: ${1}
+exit
+else
+
+renice -n 19 $$ >/dev/null
+
+read -r -d "" INITED <<INITED
+On branch master
+
+No commits yet
+
+nothing to commit (create/copy files and use "git add" to track)
+INITED
+
+read -r -d "" CLEAN <<CLEAN
+On branch master
+nothing to commit, working tree clean
+CLEAN
+
+backup() {
+ F1=${PREFIX}s.${TIM2E} && ${MYSQLDUMP} -u${MYSQL_USER} -p${MYSQL_PASSWD} --skip-dump-date --skip-comments --single-transaction --no-data ${MYSQL_DB} > ${F1} 2>/dev/null && xz -9c ${F1} | ${OPENSSL} enc -e -aes-128-cbc -salt -pass pass:${PASSWORD} > ${F1}.bin && [ 336 -lt $(stat --printf=%s ${F1}.bin) ] && touch -r ${F1} ${F1}.bin && rm -f ${F1} && F2=${PREFIX}d.${TIM2E} && ${MYSQLDUMP} -u${MYSQL_USER} -p${MYSQL_PASSWD} --skip-dump-date --skip-comments --single-transaction ${MYSQL_DB} > ${F2} 2>/dev/null && xz -9c ${F2} | ${OPENSSL} enc -e -aes-128-cbc -salt -pass pass:${PASSWORD} > ${F2}.bin && [ 336 -lt $(stat --printf=%s ${F2}.bin) ] && touch -r ${F2} ${F2}.bin && rm -f ${F2} && echo -n ${F1}.bin ${F2}.bin
+}
+
+slice() {
+[ 1 -eq $# ] && if [ ${SPLIT} -ge $(stat --printf=%s ${1}) ] ; then echo ${1} ; else SPLITED=$(split -b${SPLIT} -a3 --numeric-suffixes=1 --filter=cat\ \>\ \${FILE}\ \&\&\ echo\ \${FILE} ${1} ${1}.) && [ ! -z "${SPLITED}" ] && touch -r ${1} ${SPLITED} && rm -f ${1} && echo ${SPLITED} ; fi
+}
+
+[ ! -z "${DIR}" ] && cd ${DIR}/ && git init -q && git config core.filemode false && rm -f ${DIR}/.git/index && [ "$(git status)" == "${INITED}" ] && git clean -qdf && FIL1ES=$(backup) && [ ! -z "${FIL1ES}" ] && FIL3ES=$(for FIL2E in ${FIL1ES} ; do slice ${FIL2E} ; done) && [ ! -z "${FIL3ES}" ] && git add ${FIL3ES} && git commit -q -m "$(du -cb ${FIL3ES} | sed -ne s/^\\\([0-9]\\\{1,\\\}\\\)\\ttotal\$/\\1/p && stat --format=%s\ %y\ %n ${FIL3ES} | sed -e s/\ ${TIMEZONE}\ /\ /)" && [ "$(git status)" == "${CLEAN}" ] && git push -qf ${REMOTE} master:${TIM2E} master:master && rm ${FIL3ES} && rm -rf .git && rmdir ${DIR}/ 
+
+fi
+fi
+
